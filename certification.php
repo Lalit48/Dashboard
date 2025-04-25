@@ -738,7 +738,7 @@ try {
             transform: translate(-50%, -50%);
             font-size: 20px;
             font-weight: bold;
-            color: #2c3e50;
+            color:rgb(0, 0, 0);
             margin: 0;
             text-transform: uppercase;
             width: 100%;
@@ -747,13 +747,12 @@ try {
 
         .certificate-type {
             position: absolute;
-            top: 88%;
+            top: 87.5%;
             left: 110%;
-            font-weight: bold;
-
             transform: translate(-50%, -50%);
-            font-size: 13.5px;
-            color: #34495e;
+            font-size: 14px;
+            font-weight: bold;
+            color:rgb(0, 0, 0);
             margin: 0;
             text-align: left;
             width: 100%;
@@ -767,7 +766,7 @@ try {
 
             transform: translate(-50%, -50%);
             font-size: 13.5px;
-            color: #34495e;
+            color:rgb(0, 0, 0);
             margin: 0;
             text-align: center;
             width: 100%;
@@ -1015,6 +1014,8 @@ try {
             fetch(`get_certificate_data.php?student_id=${studentId}`)
                 .then(response => response.json())
                 .then(data => {
+                    console.log('Certificate data:', data); // Log the entire data to see what's being returned
+                    
                     if (data.error) {
                         alert(data.error);
                         return;
@@ -1029,20 +1030,32 @@ try {
                         const certificate = document.createElement('div');
                         certificate.className = 'certificate';
                         
-                        // Determine program type based on the certificate data
+                        // Add this right after receiving the data to see what's being sent
+                        console.log('Raw certificate data:', data);
+                        data.certificates.forEach(cert => {
+                            console.log('Certificate type:', cert.type, 'Certificate:', cert);
+                        });
+
+                        // Then modify your type detection code to handle whatever values are actually coming from the server
                         let programType = '';
-                        if (cert.type === 'batch') {
+                        if (cert.type && cert.type.toLowerCase().includes('batch')) {
                             programType = 'Batch';
-                        } else if (cert.type === 'workshop') {
+                        } else if (cert.type && cert.type.toLowerCase().includes('workshop')) {
                             programType = 'Workshop';
-                        } else if (cert.type === 'internship') {
+                        } else if (cert.type && cert.type.toLowerCase().includes('intern')) {
                             programType = 'Internship';
+                        } else {
+                            // Get it from another field if possible
+                            programType = cert.program_type || cert.programType || 'Unknown Program';
                         }
+
+                        // Look for the program name in various possible fields
+                        const programName = cert.program_name || cert.name || cert.title || cert.batch_name || cert.workshop_title || cert.internship_title || '';
 
                         certificate.innerHTML = `
                             <div class="certificate-content">
                                 <div class="certificate-name">${data.name}</div>
-                                <div class="certificate-type">${programType}</div>
+                                <div class="certificate-type"> ${programName}</div>
                                 <div class="certificate-dates">
                                     ${formatDate(cert.start_date)} &nbsp &nbsp &nbsp  ${formatDate(cert.end_date)}
                                 </div>
